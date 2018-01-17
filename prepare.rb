@@ -4,6 +4,13 @@ require 'slop'
 require 'pathname'
 require 'fileutils'
 
+# input:
+# - fas files
+# - all-vs-all .blastab files
+# - one-vs-all .blastab files
+# output:
+# file structure for decross contamination finding
+
 params = Slop.parse do |o|
   o.banner = "Prepare MMETSP datasets for Decross"
   o.string '--contigs_path', '(required) tar archive with .fas files'
@@ -66,7 +73,10 @@ end
 ## Changing contigs name in BLAST hits ##
 Dir["#{out_paths[:contigs]}*.fas"].each do |path|
   org_id = File.basename(path, File.extname(path))
-  `sed -i "s#^>#>#{hash_by_org_id[org_id]}_#" #{path}`
+  if `uname -s` == 'Darwin'
+    `sed -i '' 's#^>#>#{hash_by_org_id[org_id]}_#' #{path}`
+  else
+    `sed -i 's#^>#>#{hash_by_org_id[org_id]}_#' #{path}`
 end
 
 paths = Dir["#{out_paths[:one_vs_all]}*.blastab", "#{out_paths[:all_vs_all]}*.blastab"]
