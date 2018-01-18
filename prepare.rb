@@ -46,14 +46,13 @@ out_paths.each{ |k, v| FileUtils.mkpath v }
 out_paths[:coverage_db] =  File.join(out_paths[:base], 'db.sql')
 out_paths[:system_names] = File.join(out_paths[:base], 'system_names.csv')
 
-## Extracting files ##
-
+puts "Extracting files"
 `tar -xvf #{input_paths[:contigs]} -C #{out_paths[:contigs]}`
 `tar -xvf #{input_paths[:one_vs_all]} -C #{out_paths[:one_vs_all]}`
 `tar -xvf #{input_paths[:all_vs_all]} -C #{out_paths[:all_vs_all]}`
 
-## Preparing names dict ##
 
+puts "Preparing names dict"
 org_id_by_hash = {}
 hash_by_org_id = {}
 
@@ -64,16 +63,17 @@ Dir["#{out_paths[:contigs]}*.fas"].each do |path|
   hash_by_org_id[org_id] = hsh
 end
 
-## Writing names dict ##
 
+puts "Writing names dict"
 File.open(out_paths[:system_names], 'w') do |f|
   f.write(org_id_by_hash.map { |hsh, org_id| "#{org_id},#{hsh}\n" }.join)
 end
 
-## Changing contigs name in BLAST hits ##
+
+puts "Changing contigs name in BLAST hits"
 Dir["#{out_paths[:contigs]}*.fas"].each do |path|
   org_id = File.basename(path, File.extname(path))
-  if `uname -s` == 'Darwin'
+  if `uname -s`.strip == 'Darwin'
     `sed -i '' 's#^>#>#{hash_by_org_id[org_id]}_#' #{path}`
   else
     `sed -i 's#^>#>#{hash_by_org_id[org_id]}_#' #{path}`
@@ -82,8 +82,8 @@ end
 
 paths = Dir["#{out_paths[:one_vs_all]}*.blastab", "#{out_paths[:all_vs_all]}*.blastab"]
 
-## Changing contig names in BLAST hits ##
 
+puts "Changing contig names in BLAST hits"
 def extract_org_id(contig_id)
   return contig_id[/MMETSP\d+/]
 end
@@ -118,3 +118,5 @@ paths.each do |path|
     lines.each { |l| f.write(l) }
   end
 end
+
+puts "Done!"
