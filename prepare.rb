@@ -77,6 +77,7 @@ Dir["#{out_paths[:contigs]}*.fas"].each do |path|
     `sed -i '' 's#^>#>#{hash_by_org_id[org_id]}_#' #{path}`
   else
     `sed -i 's#^>#>#{hash_by_org_id[org_id]}_#' #{path}`
+  end
 end
 
 paths = Dir["#{out_paths[:one_vs_all]}*.blastab", "#{out_paths[:all_vs_all]}*.blastab"]
