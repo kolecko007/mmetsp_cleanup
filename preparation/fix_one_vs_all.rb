@@ -7,7 +7,7 @@ require 'ruby-progressbar'
 require 'pry'
 
 params = Slop.parse do |o|
-  o.banner = "Prepare MMETSP datasets for Decross"
+  o.banner = "Prepare MMETSP one vs all hits for Decross"
   o.string '--wrong_names_path', 'wrong names .csv file'
   o.string '--one_vs_all_path', 'folder with .fas files'
   o.on '-h', '--help', 'Print options' do
@@ -24,7 +24,7 @@ names.each do |n|
   new_name = n[0]
   old_name = n[1]
 
-  Dir["#{one_vs_all_path}/*.blastab"].each do |path|
+  Dir["#{params[:one_vs_all_path]}/*.blastab"].each do |path|
     `pru 'gsub("#{old_name}", "#{new_name}")' -i #{path}`
   end
 
