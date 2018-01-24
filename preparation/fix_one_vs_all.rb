@@ -18,15 +18,14 @@ end
 
 
 names = File.open(params[:wrong_names_path]).readlines.map{ |l| l.strip.split(',') }
-pb = ProgressBar.create(title: 'Fixing blastabs', starting_at: 0, total: names.count)
+command = "#{names.map { |n| "gsub(\"#{n[1]}\", \"#{n[0]}\")" }.join('.')}"
 
-names.each do |n|
-  new_name = n[0]
-  old_name = n[1]
+paths = Dir["#{params[:one_vs_all_path]}/*.blastab"]
+pb = ProgressBar.create(title: 'Fixing blastabs', starting_at: 0, total: paths.count)
 
-  Dir["#{params[:one_vs_all_path]}/*.blastab"].each do |path|
-    `pru 'gsub("#{old_name}", "#{new_name}")' -i #{path}`
-  end
+paths.each do |path|
+  pb.title = File.basename(path)
+  `pru '#{command}' -i #{path}`
 
   pb.increment
 end
