@@ -10,7 +10,7 @@ require 'parallel'
 params = Slop.parse do |o|
   o.banner = "Prepare MMETSP one vs all hits for Decross. Files are sorted before the sed."
   o.string '--wrong_names_path', 'wrong names .csv file'
-  o.string '--one_vs_all_path', 'folder with .fas files'
+  o.string '--one_vs_all_path', 'folder with .blastab files'
   o.integer '--threads', 'Number of threads for the proccess'
   o.integer '--files_limit', 'Number of files to proccess (for testing)'
   o.boolean '--reverse', 'Begin from the last file to the first'

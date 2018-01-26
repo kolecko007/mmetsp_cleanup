@@ -24,7 +24,7 @@ names.each do |n|
   new_name = n[0]
   old_name = n[1]
 
-  Dir["#{params[:all_vs_all_path]}/*#{new_name}*.blastab"].each do |path|
+  Dir["#{params[:all_vs_all_path]}/*.blastab"].each do |path|
     `pru 'gsub("#{old_name}", "#{new_name}")' -i #{path}`
   end
 
