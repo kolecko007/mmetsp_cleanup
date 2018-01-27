@@ -23,7 +23,7 @@ names = File.open(params[:wrong_names_path])
 search_query = names.join('\|')
 
 names.each_slice(1000) do |group|
-  result = `grep #{search_query} #{group.join(' ')}`
+  result = `grep '#{search_query}' #{group.join(' ')}`
 
   unless result.empty?
     puts "problem: #{result}"
