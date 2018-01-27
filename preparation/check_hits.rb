@@ -21,8 +21,9 @@ names = File.open(params[:wrong_names_path])
             .map{ |l| l.strip.split(',')[1] }
 
 search_query = names.join('\|')
+paths = Dir["#{File.join(params[:hits_path], '')}*.blastab"].sort
 
-names.each_slice(1000) do |group|
+paths.each_slice(1000) do |group|
   result = `grep '#{search_query}' #{group.join(' ')}`
 
   unless result.empty?
