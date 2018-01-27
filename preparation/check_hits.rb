@@ -18,15 +18,17 @@ end
 
 names = File.open(params[:wrong_names_path])
             .readlines
-            .map{ |l| l.strip.split(',') }
-            .to_h
-            .values
+            .map{ |l| l.strip.split(',')[1] }
 
 search_query = names.join('\|')
-result = `grep -rl '#{search_query}' #{File.join(params[:hits_path], '')}*.blastab`
 
-if result.empty?
-  puts 'Everything is OK'
-else
-  puts "problem: #{result}"
+names.each_slice(1000) do |group|
+  result = `grep #{search_query} #{group.join(' ')}`
+
+  unless result.empty?
+    puts "problem: #{result}"
+    exit(0)
+  end
 end
+
+puts 'Everything is OK'
