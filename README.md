@@ -18,14 +18,7 @@ Type `./find_contaminations.py`
 
 ## :construction: Preparation pipeline (for internal purposes only)
 
-Receives the three .tar archives with:
-- datasets (`.fas` files)
-- one vs all hits (`.blastab`)
-- all vs all BLAST hits (`.blastab`)
-
-As an output makes a prepared structure of Decross project.
-
-### Check and fix names
+### First of all: check and fix names
 
 #### check_datasets.rb
 Receives a path to the dataset folder with all the `.fas` files (`--datasets_path`).
@@ -47,6 +40,9 @@ Replaces all the occurrences of "wrong names" in each one vs all `.blastab` file
 #### fix_all_vs_all.rb
 Replaces all the occurrences of "wrong names" in each all vs all `.blastab` file.
 
+#### check_hits.rb
+Checks, if files in folder provided contain wrong names.
+
 #### Archive all the data
 ```
 tar cvf datasets.tar.gz datasets/*.blastab
@@ -54,8 +50,16 @@ tar cvf one_vs_all.tar.gz one_vs_all/*.blastab
 tar cvf all_vs_all.tar.gz all_vs_all/*.blastab
 ```
 
-### Run preparation
-#TODO
+### Preparation
+
+#### prepare.rb
+
+Receives the three .tar archives with:
+- datasets (`.fas` files)
+- one vs all hits (`.blastab`)
+- all vs all BLAST hits (`.blastab`)
+
+As an output makes a prepared structure of Decross project.
 
 ### Make a coverage database
 #TODO
