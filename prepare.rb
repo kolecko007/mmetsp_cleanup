@@ -13,7 +13,7 @@ require 'fileutils'
 
 params = Slop.parse do |o|
   o.banner = "Prepare MMETSP datasets for Decross"
-  o.string '--contigs_path', '(required) tar archive with .fas files'
+  o.string '--datasets_path', '(required) tar archive with .fas files'
   o.string '--one_vs_all_path', '(required) tar archive with one-vs-all .blastab files'
   o.string '--all_vs_all_path', '(required) tar archive with all-vs-all .blastab files'
   o.string '--output_path', '(required) output folder'
@@ -24,7 +24,7 @@ params = Slop.parse do |o|
 end
 
 input_paths = {
-  contigs:    File.join(params[:contigs_path]),
+  contigs:    File.join(params[:datasets_path]),
   one_vs_all: File.join(params[:one_vs_all_path]),
   all_vs_all: File.join(params[:all_vs_all_path])
 }
