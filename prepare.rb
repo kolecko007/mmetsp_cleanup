@@ -3,6 +3,7 @@ require 'securerandom'
 require 'slop'
 require 'pathname'
 require 'fileutils'
+require 'parallel'
 
 # input:
 # - fas files
@@ -17,6 +18,7 @@ params = Slop.parse do |o|
   o.string '--one_vs_all_path', '(required) tar archive with one-vs-all .blastab files'
   o.string '--all_vs_all_path', '(required) tar archive with all-vs-all .blastab files'
   o.string '--output_path', '(required) output folder'
+  o.string '-t', '--threads', 'number of threads (32 by default)'
   o.on '-h', '--help', 'Print options' do
     puts o
     exit
@@ -40,6 +42,9 @@ out_paths.merge!({
   all_vs_all:    File.join(out_paths[:blast_results], 'all_vs_all', '')
 })
 
+thread_num = params[:threads] || 32
+pru_command = ENV['PRU_EXEC'] || 'pru'
+
 `rm -r #{out_paths[:base]}`
 out_paths.each{ |k, v| FileUtils.mkpath v }
 
@@ -47,9 +52,9 @@ out_paths[:coverage_db] =  File.join(out_paths[:base], 'db.sql')
 out_paths[:system_names] = File.join(out_paths[:base], 'system_names.csv')
 
 puts "Extracting files"
-`tar -xvf #{input_paths[:contigs]} -C #{out_paths[:contigs]}`
-`tar -xvf #{input_paths[:one_vs_all]} -C #{out_paths[:one_vs_all]}`
-`tar -xvf #{input_paths[:all_vs_all]} -C #{out_paths[:all_vs_all]}`
+`tar -xf #{input_paths[:contigs]} -C #{out_paths[:contigs]}`
+`tar -xf #{input_paths[:one_vs_all]} -C #{out_paths[:one_vs_all]}`
+`tar -xf #{input_paths[:all_vs_all]} -C #{out_paths[:all_vs_all]}`
 
 
 puts "Preparing names dict"
@@ -70,7 +75,7 @@ File.open(out_paths[:system_names], 'w') do |f|
 end
 
 
-puts "Changing contigs name in BLAST hits"
+puts "Changing contigs name in datasets"
 Dir["#{out_paths[:contigs]}*.fas"].each do |path|
   org_id = File.basename(path, File.extname(path))
   if `uname -s`.strip == 'Darwin'
@@ -80,36 +85,41 @@ Dir["#{out_paths[:contigs]}*.fas"].each do |path|
   end
 end
 
-paths = Dir["#{out_paths[:one_vs_all]}*.blastab", "#{out_paths[:all_vs_all]}*.blastab"]
 
-
-puts "Changing contig names in BLAST hits"
 def extract_org_id(contig_id)
   return contig_id[/MMETSP\d+/]
 end
 
-paths.each do |path|
+def check_ids_validity(line, *names)
+  if names.include?(nil)
+    raise "ERROR: cannot find hash for hit:\n
+           line: #{line},\n #{names.join("\n")}"
+  end
+end
+
+puts "Changing contig names in one_vs_all BLAST hits"
+paths = Dir["#{out_paths[:one_vs_all]}*.blastab"]
+Parallel.each(paths, in_processes: thread_num) do |path|
   lines = []
+  left_org_id = nil
+  left_org_hash = nil
 
   File.open(path, 'r').each do |line|
     line = line.split("\t")
 
-    org_1_id = extract_org_id(line[0])
-    org_2_id = extract_org_id(line[1])
+    left_org_id ||= extract_org_id(line[0])
+    right_org_id = extract_org_id(line[1])
 
-    if !org_1_id || !org_2_id
-      raise "ERROR: cannot find org_id for hit: #{line[0]} (#{org_1_id || 'not found'}), #{line[1]} (#{org_2_id} || 'not found')"
-    end
+    left_org_hash ||= hash_by_org_id[left_org_id]
+    right_org_hash = hash_by_org_id[right_org_id]
 
-    org_1_hsh = hash_by_org_id[org_1_id]
-    org_2_hsh = hash_by_org_id[org_2_id]
+    check_ids_validity line, left_org_id,
+                             right_org_id,
+                             left_org_hash,
+                             right_org_hash
 
-    if !org_1_hsh || !org_2_hsh
-      raise "ERROR: cannot find hash for hit: #{org_1_id} (#{org_1_hsh || 'not found'}), #{org_2_id} (#{org_2_hsh || 'not found'})"
-    end
-
-    line[0] = "#{hash_by_org_id[org_1_id]}_#{line[0]}"
-    line[1] = "#{hash_by_org_id[org_2_id]}_#{line[1]}"
+    line[0] = "#{hash_by_org_id[left_org_id]}_#{line[0]}"
+    line[1] = "#{hash_by_org_id[right_org_id]}_#{line[1]}"
 
     lines << line.join("\t")
   end
@@ -117,6 +127,30 @@ paths.each do |path|
   File.open(path, 'w') do |f|
     lines.each { |l| f.write(l) }
   end
+end
+
+
+puts "Changing contig names in all_vs_all BLAST hits"
+paths = Dir["#{out_paths[:all_vs_all]}*.blastab"]
+Parallel.each(paths, in_processes: thread_num) do |path|
+  parts = File.basename(path).split('VS')
+  left_org_id, right_org_id = extract_org_id(parts[0]), extract_org_id(parts[1])
+
+  left_org_hash = hash_by_org_id[left_org_id]
+  right_org_hash = hash_by_org_id[right_org_id]
+
+  check_ids_validity path, left_org_id,
+                           right_org_id,
+                           left_org_hash,
+                           right_org_hash
+
+  left_org_name = [left_org_hash, left_org_id].join('_')
+  right_org_name = [right_org_id, right_org_hash].join('_')
+
+  pru_options = "gsub('#{left_org_id}', '#{left_org_name}')"
+  pru_options += ".gsub('#{right_org_id}', '#{right_org_hash}')"
+
+  `#{pru_command} "#{pru_options}" -i #{path}`
 end
 
 puts "Done!"
