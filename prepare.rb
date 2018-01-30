@@ -18,7 +18,7 @@ params = Slop.parse do |o|
   o.string '--one_vs_all_path', '(required) tar archive with one-vs-all .blastab files'
   o.string '--all_vs_all_path', '(required) tar archive with all-vs-all .blastab files'
   o.string '--output_path', '(required) output folder'
-  o.string '-t', '--threads', 'number of threads (32 by default)'
+  o.integer '-t', '--threads', 'number of threads (32 by default)'
   o.on '-h', '--help', 'Print options' do
     puts o
     exit
@@ -132,6 +132,7 @@ end
 
 puts "Changing contig names in all_vs_all BLAST hits"
 paths = Dir["#{out_paths[:all_vs_all]}*.blastab"]
+
 Parallel.each(paths, in_processes: thread_num) do |path|
   parts = File.basename(path).split('VS')
   left_org_id, right_org_id = extract_org_id(parts[0]), extract_org_id(parts[1])
@@ -144,13 +145,8 @@ Parallel.each(paths, in_processes: thread_num) do |path|
                            left_org_hash,
                            right_org_hash
 
-  left_org_name = [left_org_hash, left_org_id].join('_')
-  right_org_name = [right_org_id, right_org_hash].join('_')
-
-  pru_options = "gsub('#{left_org_id}', '#{left_org_name}')"
-  pru_options += ".gsub('#{right_org_id}', '#{right_org_hash}')"
-
-  `#{pru_command} "#{pru_options}" -i #{path}`
+  pru_options = "gsub(/(\\A.*#{left_org_id}.*)\\t(.*#{right_org_id})/, \"#{left_org_hash}_\\\\1\\t#{right_org_hash}_\\\\2\")"
+  `#{pru_command} '#{pru_options}' -i #{path}`
 end
 
 puts "Done!"
