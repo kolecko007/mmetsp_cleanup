@@ -45,6 +45,7 @@ SQL
 
 fas_files = Dir["#{datasets_path}*.fas"]
 pb = ProgressBar.create(title: 'Working with database', starting_at: 0, total: fas_files.count)
+cov_not_found = []
 
 fas_files.each do |path|
   new_db.transaction
@@ -66,10 +67,14 @@ fas_files.each do |path|
       command = "INSERT INTO `coverage_entries` (`contig_id`, `rpkm`) VALUES ('#{new_contig_id}', #{contig[1]})"
       new_db.execute(command)
     else
-      raise "Cannot find contig for #{line}"
+      cov_not_found << line
     end
   end
 
   new_db.commit
   pb.increment
+end
+
+File.open('cov_not_found.txt', 'w') do |f|
+  cov_not_found.each { |line| f.write("#{line.strip}\n") }
 end
