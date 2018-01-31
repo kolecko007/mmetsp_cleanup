@@ -12,6 +12,7 @@ params = Slop.parse do |o|
   o.string '--old_db_path', '(required) .sql file with an old database'
   o.string '--new_db_path', '(required) .sql file with a new prepared database'
   o.string '--datasets_path', '(required) folder with prepared *.fas files (with system names)'
+  o.string '--wrong_names_path', '(required) wrong names .csv path'
   o.on '-h', '--help', 'Print options' do
     puts o
     exit
@@ -29,6 +30,12 @@ datasets_path = File.join(params[:datasets_path], '')
 old_db = SQLite3::Database.new params[:old_db_path]
 new_db = SQLite3::Database.new params[:new_db_path]
 
+wrong_names = {}
+File.open(params[:wrong_names_path]).each do |line|
+  s = line.strip.split(',')
+  wrong_names[s[0]] = s[1]
+end
+
 new_db.execute <<-SQL
   CREATE TABLE IF NOT EXISTS `coverage_entries` (
     `contig_id` char[256] NOT NULL,
@@ -44,12 +51,22 @@ fas_files.each do |path|
 
   `grep '>' #{path}`.split("\n").map(&:strip).each do |line|
     new_contig_id = line.gsub('>', '')
-    old_db_id = new_contig_id[/MMETSP.+$/]
-    contig = get_contig(old_db, old_db_id)
+    old_contig_id = new_contig_id[/MMETSP.+$/]
+
+    new_org_id = old_contig_id[/MMETSP[0-9A-Za-z_]+/]
+
+    if wrong_names.include?(new_org_id)
+      old_org_id = wrong_names[new_org_id]
+      contig = get_contig(old_db, old_contig_id.gsub(old_org_id, new_org_id))
+    else
+      contig = get_contig(old_db, old_contig_id)
+    end
 
     if contig
       command = "INSERT INTO `coverage_entries` (`contig_id`, `rpkm`) VALUES ('#{new_contig_id}', #{contig[1]})"
       new_db.execute(command)
+    else
+      raise "Cannot find contig for #{line}"
     end
   end
 
