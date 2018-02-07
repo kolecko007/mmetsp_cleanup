@@ -6,7 +6,7 @@ from optparse import OptionParser
 def parse_options():
   parser = OptionParser()
   parser.add_option("-k", "--known_contaminations_path", help="Path for known contaminations .csv file")
-  prser.add_option("-c", "--contaminations_dir_path", help="Path for the folder with find_contaminations.py output")
+  parser.add_option("-c", "--contaminations_dir_path", help="Path for the folder with find_contaminations.py output")
   parser.add_option("-r", "--results_path", default="contamination_stats.csv",
                                             help="Path for the output file")
 
