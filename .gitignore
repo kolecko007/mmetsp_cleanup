@@ -1,2 +1,7 @@
-test/output/*
+*.pyc
+*.yml
+*.idea
+*.pbs
 *.fas
+
+test/output/*
