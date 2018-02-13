@@ -2,7 +2,7 @@
 require 'securerandom'
 require 'slop'
 require 'pathname'
-require 'fileutils'
+require 'ruby-progressbar'
 
 params = Slop.parse do |o|
   o.banner = "Prepare MMETSP datasets for Decross"
@@ -19,11 +19,13 @@ output_path = File.join(params[:output])
 
 files = Dir["#{results_path}*_deleted_stats.csv"]
 result = []
+pb = ProgressBar.create(title: 'Working with files', starting_at: 0, total: files.count)
 
 files.each do |path|
   org_id = path[/MMETSP\d{4}/]
 
-  clean_cnt = `grep -c '>' #{results_path}#{org_id}_clean.fasta`.strip.to_i
+  clean_path = "#{results_path}#{org_id}_clean.fasta"
+  clean_cnt = File.exist?(clean_path) ? `grep -c '>' #{clean_path}`.strip.to_i : 0
   food_cnt = 0
   other_cnt = 0
 
@@ -36,6 +38,7 @@ files.each do |path|
     end
   end
 
+  pb.increment
   result << [org_id, clean_cnt, food_cnt, other_cnt].join(',')
 end
 
