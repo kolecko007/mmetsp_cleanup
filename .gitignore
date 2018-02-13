@@ -5,3 +5,4 @@
 *.fas
 
 test/output/*
+tmp/
