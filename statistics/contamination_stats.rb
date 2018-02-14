@@ -38,14 +38,15 @@ files.each do |path|
   food_cnt = 0
   other_cnt = 0
 
+  stat_hsh = {}
+
   File.open(path).readlines().each do |l|
-    type = l.strip.split(',')[-2]
-    if type == 'LEFT_EATS_RIGHT'
-      food_cnt += 1
-    else
-      other_cnt += 1
-    end
+    l = l.strip.split(',')
+    stat_hsh[l[0]] ||= l[-2]
   end
+
+  food_cnt = stat_hsh.values.count('LEFT_EATS_RIGHT')
+  other_cnt = stat_hsh.count - food_cnt
 
   contigs_cnt = count_dataset_contigs(org_id, datasets_path)
 
