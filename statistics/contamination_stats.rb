@@ -20,7 +20,7 @@ datasets_path = File.join(params[:datasets_path], '')
 output_path = File.join(params[:output])
 
 def count_dataset_contigs(org_id, datasets_path)
-  `grep -c '>' #{datasets_path}#{org_id}.fas`
+  `grep -c '>' #{datasets_path}#{org_id}.fas`.strip()
 end
 
 files = Dir["#{results_path}*_deleted_stats.csv"]
