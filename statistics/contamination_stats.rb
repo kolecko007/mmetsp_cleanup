@@ -19,7 +19,7 @@ results_path = File.join(params[:results_path], '')
 datasets_path = File.join(params[:datasets_path], '')
 output_path = File.join(params[:output])
 
-def count_dataset_contigs(org_id)
+def count_dataset_contigs(org_id, datasets_path)
   `grep -c '>' #{datasets_path}#{org_id}.fas`
 end
 
@@ -47,7 +47,7 @@ files.each do |path|
     end
   end
 
-  contigs_cnt = count_dataset_contigs(org_id)
+  contigs_cnt = count_dataset_contigs(org_id, datasets_path)
 
   pb.increment
   result << [org_id, contigs_cnt, clean_cnt, contaminations_cnt, food_cnt, other_cnt].join(',')
