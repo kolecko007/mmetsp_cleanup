@@ -3,6 +3,13 @@
 *.idea
 *.pbs
 *.fas
+*.DS_Store
 
 test/output/*
 tmp/
+data/
+
+statistics/detailed/output/*
+!statistics/detailed/output/.gitkeep
+statistics/detailed/raw_data/*
+!statistics/detailed/raw_data/.gitkeep
