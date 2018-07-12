@@ -26,7 +26,7 @@ def parse_options():
 
 
 def set_setting(settings_path, setting, new_value):
-    subprocess.call(f"sed -i '' 's#\({setting}\).*#\\1: {new_value}#' {settings_path}", shell=True)
+    subprocess.call(f"sed -i 's#\({setting}\).*#\\1: {new_value}#' {settings_path}", shell=True)
     pass
 
 
