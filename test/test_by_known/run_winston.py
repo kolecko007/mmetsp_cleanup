@@ -54,8 +54,8 @@ def run_winston(winston_path, settings_path, working_folder, thresholds):
             results_name += f"_{key}_{thresholds[key][i]}"
             set_setting(settings_path, key, thresholds[key][i])
 
+        subprocess.call(f"mkdir {working_folder}/results", shell=True)
         command = f"{winston_path} --config_path {settings_path}"
-
         print(f'running winston: {command}')
         print()
 
