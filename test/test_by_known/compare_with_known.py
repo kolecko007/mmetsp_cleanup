@@ -96,7 +96,7 @@ if __name__ == '__main__':
                 f.write(f"run_id,mistakenly_kept_pct,mistakenly_deleted_pct\n")
 
         with open(options.stat_result_path, 'a') as f:
-            f.write(f"{contaminations_dir_path.split('/')[-1]},{mistakenly_kept_pct},{mistakenly_deleted_pct}\n")
+            f.write(f"{contaminations_dir_path.split('/')[-2]},{mistakenly_kept_pct},{mistakenly_deleted_pct}\n")
 
 
 
