@@ -51,6 +51,13 @@ def extract_random_seqs(known_dict):
     return result
 
 
+def save_extracted_seqs(extracted_dict, output_path):
+    with open(f"{output_path}/extracted_contaminations.csv", 'w') as f:
+        for t, seqs in extracted_dict.items():
+            for seq in seqs:
+                f.write(f"{seq},{t}\n")
+
+
 def extract_org_id(seq_id):
     return re.search(r'MMETSP\d{4}', seq_id.strip()).group()
 
@@ -88,10 +95,14 @@ def copy_common_files(mmetsp_path, output_path):
 
 def main():
     options = parse_options()
+    options.output = options.output.rstrip('/')
+    options.mmetsp = options.mmetsp.rstrip('/')
+
     create_folders(options.output)
 
     known_dict = make_known_dict(options.known)
     rand_known_dict = extract_random_seqs(known_dict)
+    save_extracted_seqs(rand_known_dict, options.output)
     org_list = get_unique_orgs(rand_known_dict)
 
     extract_data_from_mmetsp(options.mmetsp, options.output, org_list)
