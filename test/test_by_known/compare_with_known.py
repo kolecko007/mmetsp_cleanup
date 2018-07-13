@@ -12,6 +12,7 @@ def parse_options():
     parser.add_option("-c", "--contaminations_dir_path", help="Path for the folder with find_contaminations.py output")
     parser.add_option("-r", "--results_path", default="contamination_stats.csv",
                       help="Path for the output file")
+    parser.add_option("-s", "--stat_result_path", help="Path for the run statistics (mis. deleted and mis. kept %)")
 
     return parser.parse_args()[0]
 
@@ -64,3 +65,38 @@ if __name__ == '__main__':
 
             output.write("%s\n" % result)
             pb.update(i + 1)
+
+    if options.stat_result_path:
+        stats = {
+            'bad': 0,
+            'kept_bad': 0,
+            'good': 0,
+            'deleted_good': 0
+        }
+
+        with open(options.results_path) as f:
+            lines = f.readlines()
+            for line in lines:
+                _seq, seq_type, deleted = line.strip().split(',')
+
+                if seq_type == 'bad':
+                    stats['bad'] += 1
+                    if deleted == 'False':
+                        stats['kept_bad'] += 1
+                elif seq_type == 'good':
+                    stats['good'] += 1
+                    if deleted == 'True':
+                        stats['deleted_good'] += 1
+
+        mistakenly_kept_pct = round((stats['kept_bad']/stats['bad'])*100, 2)
+        mistakenly_deleted_pct = round((stats['deleted_good']/stats['good'])*100, 2)
+
+        if not os.path.exists(options.stat_result_path):
+            with open(options.stat_result_path, 'w') as f:
+                f.write(f"run_id,mistakenly_kept_pct,mistakenly_deleted_pct\n")
+
+        with open(options.stat_result_path, 'a') as f:
+            f.write(f"{contaminations_dir_path.split('/')[-1]},{mistakenly_kept_pct},{mistakenly_deleted_pct}\n")
+
+
+
