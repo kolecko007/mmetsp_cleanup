@@ -60,6 +60,8 @@ def run_winston(winston_path, settings_path, working_folder, thresholds):
         print()
 
         subprocess.call(command, shell=True)
+
+        subprocess.call(f"cp {settings_path} {working_folder}/results", shell=True)
         subprocess.call(f"mv {working_folder}/results {working_folder}/{results_name}", shell=True)
 
 
