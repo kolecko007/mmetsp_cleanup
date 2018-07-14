@@ -50,19 +50,6 @@ if __name__ == '__main__':
 
             result += ",%s" % deleted
 
-            # Adding the reasons of deletion
-            if deleted:
-                opts = (contaminations_dir_path, parsed_id['db_id'], parsed_id['full_seq_id'])
-                extra_data = os.popen("cat %s%s_deleted_stats.csv | grep '%s'" % opts).read().strip()
-                extra_data = extra_data.split("\n")[0]
-
-                if extra_data.strip() == '':
-                    raise Exception(
-                        'Fail: cannot detect %s in %s deleted stats' % (parsed_id['full_seq_id'], parsed_id['db_id']))
-
-                extra_data = ','.join(extra_data.split(',')[1:])
-                result += ",%s" % extra_data
-
             output.write("%s\n" % result)
             pb.update(i + 1)
 
