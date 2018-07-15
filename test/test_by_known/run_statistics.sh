@@ -9,7 +9,7 @@ if [ -f comparison.csv ]; then
     rm comparison.csv
 fi
 
-for folder in $1/results_*
+for folder in $@
 do
     ./compare_with_known.py -k $1/extracted_contaminations.csv \
                             -c ${folder} \
