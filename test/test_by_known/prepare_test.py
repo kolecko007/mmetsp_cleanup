@@ -85,7 +85,7 @@ def extract_data_from_mmetsp(mmetsp_path, output_path, org_list):
         mmetsp_one_vs_all_path = os.path.join(mmetsp_path, "blast_results", "one_vs_all")
         output_one_vs_all_path = os.path.join(output_path, "blast_results", "one_vs_all")
         mmetsp_datasets_path = os.path.join(mmetsp_path, "datasets")
-        output_datasets_path = os.path.join(mmetsp_path, "datasets")
+        output_datasets_path = os.path.join(output_path, "datasets")
 
         subprocess.call(f"cp -v {mmetsp_datasets_path}/{org_id}.fas {output_datasets_path}", shell=True)
         subprocess.call(f"cp -v {mmetsp_one_vs_all_path}/{org_id}.blastab {output_one_vs_all_path}", shell=True)

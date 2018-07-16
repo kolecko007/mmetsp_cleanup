@@ -11,7 +11,7 @@ fi
 
 for folder in $@
 do
-    ./compare_with_known.py -k ${folder}/extracted_contaminations.csv \
+    ./compare_with_known.py -k ${folder}/../extracted_contaminations.csv \
                             -c ${folder} \
                             -r ${folder}/stats.csv \
                             -s comparison.csv
