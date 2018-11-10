@@ -7,6 +7,8 @@
  |_|  |_|_|  |_|______|  |_| |_____/|_|       \_____|______|______/_/    \_|_| \_|\____/|_|
 ```
 
+The algorithm identifies contigs that are putatively cross-contaminated by finding pairs of identical or nearly identical sequences. It then uses coverage information to distinguish between cross-contaminated and clean sequences. The algorithm therefore assumes that contaminating DNA and the resulting reads are always present in a smaller amount than correct DNA and reads.
+
 # Installation
 
 The deployed and prepared environment for running MMETSP cleanup iside the virtual machine.
@@ -63,8 +65,27 @@ $ vagrant ssh
 ```
 
 Main configuration files for editing:
+
+## settings.yml
 `/home/vagrant/mmetsp_data/settings.yml` - coverage_ratio thresholds are defined there
-`/home/vagrant/mmetsp_data/types.csv` - types and thresholds for all possible dataset combinations
+
+* `winston.hits_filtering.len_ratio` &mdash; minimal `qcovhsp` for hits filtering
+* `winston.hits_filtering.len_minimum` &mdash; minimal hit lenth for hits filtering
+* `winston.coverage_ratio.REGULAR` &mdash; coverage ratio for REGULAR dataset pair type 
+(minimal difference between coverage of LEFT_ORG and RIGHT_ORG contig to consider it a contaminated, lower values make contamination prediction more strict, less contaminations will be found)
+* `winston.coverage_ratio.CLOSE` &mdash; coverage ratio for CLOSE dataset pair type
+* `winston.coverage_ratio.LEFT_EATS_RIGHT` &mdash; coverage ratio for CLOSE dataset pair type
+* `winston.coverage_ratio.RIGHT_EATS_LEFT` &mdash; coverage ratio for CLOSE dataset pair type
+
+## types.csv
+`/home/vagrant/mmetsp_data/types.csv` - file with types and thresholds for datasets. It contains all possible combinations of dataset pairs.
+
+The structure of file:
+
+`LEFT_ORG_ID,RIGHT_ORG_ID,THRESHOLD,TYPE`
+
+* THRESHOLD - (float) minimal percentage of identity of BLAST hit to consider it a suspicious.
+* TYPE - (float) type, describled in `settings.yml` 
 
 In the WM home folder, you will find a script run.sh, which starts the mmetsp cleanup pipeline.
 To run the process simply run that script:
