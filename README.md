@@ -71,11 +71,11 @@ Main configuration files for editing:
 
 * `winston.hits_filtering.len_ratio` &mdash; minimal `qcovhsp` for hits filtering
 * `winston.hits_filtering.len_minimum` &mdash; minimal hit lenth for hits filtering
-* `winston.coverage_ratio.REGULAR` &mdash; coverage ratio for REGULAR dataset pair type 
+* `winston.coverage_ratio.REGULAR` &mdash; Reads coverage ratio for REGULAR dataset pair type 
 (minimal difference between coverage of LEFT_ORG and RIGHT_ORG contig to consider it a contaminated, lower values make contamination prediction more strict, less contaminations will be found)
-* `winston.coverage_ratio.CLOSE` &mdash; coverage ratio for CLOSE dataset pair type
-* `winston.coverage_ratio.LEFT_EATS_RIGHT` &mdash; coverage ratio for CLOSE dataset pair type
-* `winston.coverage_ratio.RIGHT_EATS_LEFT` &mdash; coverage ratio for CLOSE dataset pair type
+* `winston.coverage_ratio.CLOSE` &mdash; Reads coverage ratio for CLOSE dataset pair type
+* `winston.coverage_ratio.LEFT_EATS_RIGHT` &mdash; Reads coverage ratio for CLOSE dataset pair type
+* `winston.coverage_ratio.RIGHT_EATS_LEFT` &mdash; Reads coverage ratio for CLOSE dataset pair type
 
 ## types.csv
 `/home/vagrant/mmetsp_data/types.csv` - file with types and thresholds for datasets. It contains all possible combinations of dataset pairs.
@@ -85,7 +85,11 @@ The structure of file:
 `LEFT_ORG_ID,RIGHT_ORG_ID,THRESHOLD,TYPE`
 
 * THRESHOLD - (float) minimal percentage of identity of BLAST hit to consider it a suspicious.
-* TYPE - (float) type, describled in `settings.yml` 
+* TYPE - (float) type, describled in `settings.yml`
+   * TYPES:
+      * REGULAR - two unrelated organisms
+      * CLOSE - Evolutionary close species with more stringent setting for contamination identification to reduce false positves
+      * LEFT_EATS_RIGHT and RIGHT_EATS_LEFT - For situations where one sequenced organisms is also present in other cultures as a food source 
 
 In the WM home folder, you will find a script run.sh, which starts the mmetsp cleanup pipeline.
 To run the process simply run that script:
