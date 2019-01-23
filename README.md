@@ -37,7 +37,7 @@ $ vagrant plugin install vagrant-disksize
 
 4) Create an empty folder and download the preparation shell script into it:
 ```console
-$ wget http://nenarokov.com/mmetsp_cleanup/download_box.sh
+$ wget http://kolisko-lab.bc.cas.cz/mmetsp_cleanup/download_box.sh
 ```
 
 5) Make the script executable and run it
